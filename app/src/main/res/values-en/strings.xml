@@ -1,0 +1,57 @@
+<resources>
+    <string name="app_name">OpeningMind</string>
+
+    <!-- Navigation Tabs -->
+    <string name="tab_dashboard">Dashboard</string>
+    <string name="tab_kamus_eco">ECO Dictionary</string>
+    <string name="tab_repertoire">Repertoire</string>
+    <string name="tab_ai_advisor">AI Advisor</string>
+    <string name="tab_settings">Settings</string>
+
+    <!-- Dashboard -->
+    <string name="welcome_message">Welcome to OpeningMind</string>
+    <string name="dashboard_subtitle">Your personal chess vault.</string>
+    <string name="local_stats_title">Local Repertoire Statistics</string>
+    <string name="total_notes">Total Notes: %1$d Variations</string>
+
+    <!-- Browse -->
+    <string name="lichess_kamus_title">Opening Dictionary (Lichess)</string>
+
+    <!-- Repertoire -->
+    <string name="my_repertoire_title">My Repertoire</string>
+    <string name="add_repertoire">Add</string>
+
+    <!-- AI Advisor -->
+    <string name="ai_advisor_title">Grandmaster AI Advisor</string>
+    <string name="ai_powered_by">Powered by Azure DeepSeek-V4-Flash</string>
+    <string name="ask_ai_hint">Ask opening tactics…</string>
+    <string name="ask_ai_button">Ask AI</string>
+    <string name="ai_empty_state">Type your question above and tap the Ask AI button to consult with an intelligent chess coach.</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="app_language">App Language</string>
+    <string name="lang_label">ID / EN</string>
+
+    <!-- Detail -->
+    <string name="detail_title">Analysis Detail</string>
+    <string name="back">Back</string>
+    <string name="chess_board_placeholder">[Static Chess Board Image]</string>
+    <string name="notation_label">Notation: %1$s</string>
+    <string name="edit_button">Edit</string>
+    <string name="delete_button">Delete</string>
+
+    <!-- Form -->
+    <string name="add_title">Add Repertoire</string>
+    <string name="edit_title">Edit Repertoire</string>
+    <string name="eco_hint">ECO Code (Example: B20)</string>
+    <string name="opening_name_hint">Opening Name</string>
+    <string name="notation_hint">Chess Notation</string>
+    <string name="analysis_hint">Tactical Analysis</string>
+    <string name="save_button">Save</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_subtitle">Personal Chess Vault. Save your secret opening variations and analysis offline and structured.</string>
+    <string name="start_button">Start Now</string>
+</resources>

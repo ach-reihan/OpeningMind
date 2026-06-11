@@ -1,0 +1,349 @@
+package com.openingmind.presentation.screens
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.TextOverflow
+import com.openingmind.R
+import com.openingmind.presentation.RepertoireViewModel
+import com.openingmind.presentation.SettingsViewModel
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainScreen(
+    viewModel: RepertoireViewModel,
+    settingsViewModel: SettingsViewModel,
+    onNavigateToDetail: (Int) -> Unit,
+    onNavigateToForm: () -> Unit
+) {
+    var selectedTab by remember { mutableStateOf(0) }
+    val tabs = listOf(
+        stringResource(R.string.tab_dashboard),
+        stringResource(R.string.tab_kamus_eco),
+        stringResource(R.string.tab_repertoire),
+        stringResource(R.string.tab_ai_advisor),
+        stringResource(R.string.tab_settings)
+    )
+    val iconResources = listOf(
+        R.drawable.ic_dashboard,
+        R.drawable.ic_explore,
+        R.drawable.ic_book,
+        R.drawable.ic_star_shine,
+        R.drawable.ic_settings
+    )
+
+    Scaffold(
+        bottomBar = {
+            NavigationBar(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            ) {
+                tabs.forEachIndexed { index, title ->
+                    NavigationBarItem(
+                        icon = { 
+                            Icon(
+                                painter = painterResource(id = iconResources[index]), 
+                                contentDescription = title,
+                                modifier = Modifier.size(24.dp),
+                                tint = if (selectedTab == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                            ) 
+                        },
+                        label = { 
+                            Text(
+                                title, 
+                                fontSize = 9.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            ) 
+                        },
+                        selected = selectedTab == index,
+                        onClick = { selectedTab = index },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = MaterialTheme.colorScheme.primary,
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                            indicatorColor = MaterialTheme.colorScheme.primaryContainer
+                        )
+                    )
+                }
+            }
+        },
+        containerColor = MaterialTheme.colorScheme.background
+    ) { paddingValues ->
+        Box(modifier = Modifier.padding(paddingValues)) {
+            when (selectedTab) {
+                0 -> DashboardTab(viewModel)
+                1 -> BrowseTab(viewModel)
+                2 -> RepertoireTab(viewModel, onNavigateToDetail, onNavigateToForm)
+                3 -> AiAdvisorTab(viewModel)
+                4 -> SettingsTab(settingsViewModel)
+            }
+        }
+    }
+}
+
+@Composable
+fun DashboardTab(viewModel: RepertoireViewModel) {
+    val localCount by viewModel.localRepertoires.collectAsState()
+    Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
+        Text(
+            stringResource(R.string.welcome_message), 
+            fontSize = 22.sp, 
+            fontWeight = FontWeight.Bold, 
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Text(
+            stringResource(R.string.dashboard_subtitle), 
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        Card(
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            ), 
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    stringResource(R.string.local_stats_title), 
+                    fontWeight = FontWeight.Bold, 
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    stringResource(R.string.total_notes, localCount.size), 
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun BrowseTab(viewModel: RepertoireViewModel) {
+    val remoteOpenings by viewModel.remoteOpenings.collectAsState()
+    val isLoading by viewModel.isRemoteLoading.collectAsState()
+
+    Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
+        Text(
+            stringResource(R.string.lichess_kamus_title), 
+            fontSize = 20.sp, 
+            fontWeight = FontWeight.Bold, 
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        if (isLoading) {
+            CircularProgressIndicator(
+                color = MaterialTheme.colorScheme.primary, 
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+        } else {
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(remoteOpenings) { opening ->
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        ), 
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                "${opening.ecoCode} - ${opening.name}", 
+                                fontWeight = FontWeight.Bold, 
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                opening.notation, 
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun RepertoireTab(
+    viewModel: RepertoireViewModel,
+    onNavigateToDetail: (Int) -> Unit,
+    onNavigateToForm: () -> Unit
+) {
+    val localRepertoires by viewModel.localRepertoires.collectAsState()
+
+    Box(modifier = Modifier.fillMaxSize().padding(24.dp)) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Text(
+                stringResource(R.string.my_repertoire_title), 
+                fontSize = 20.sp, 
+                fontWeight = FontWeight.Bold, 
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                items(localRepertoires) { item ->
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        ),
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { onNavigateToDetail(item.id) }
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                "${item.ecoCode} - ${item.name}", 
+                                fontWeight = FontWeight.Bold, 
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                item.notation, 
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        FloatingActionButton(
+            onClick = {
+                viewModel.clearForm()
+                onNavigateToForm()
+            },
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            modifier = Modifier.align(Alignment.BottomEnd)
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_add), 
+                contentDescription = stringResource(R.string.add_repertoire), 
+                modifier = Modifier.size(24.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun AiAdvisorTab(viewModel: RepertoireViewModel) {
+    var query by remember { mutableStateOf("") }
+    val aiResponse by viewModel.aiResponse.collectAsState()
+    val isLoading by viewModel.isAiLoading.collectAsState()
+
+    Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
+        Text(
+            stringResource(R.string.ai_advisor_title), 
+            fontSize = 20.sp, 
+            fontWeight = FontWeight.Bold, 
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Text(
+            stringResource(R.string.ai_powered_by), 
+            fontSize = 12.sp, 
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        OutlinedTextField(
+            value = query,
+            onValueChange = { query = it },
+            label = { Text(stringResource(R.string.ask_ai_hint)) },
+            modifier = Modifier.fillMaxWidth(),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline
+            )
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Button(
+            onClick = { viewModel.askAIChessAdvisor(query) },
+            enabled = query.isNotEmpty() && !isLoading,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            )
+        ) {
+            Text(stringResource(R.string.ask_ai_button))
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+        Card(
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            ),
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.6f)
+        ) {
+            Box(modifier = Modifier.padding(16.dp)) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.primary, 
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                } else {
+                    Text(
+                        text = aiResponse.ifEmpty { stringResource(R.string.ai_empty_state) },
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SettingsTab(settingsViewModel: SettingsViewModel) {
+    val isDarkPreferred by settingsViewModel.isDarkMode.collectAsState()
+    val language by settingsViewModel.language.collectAsState()
+    val isSystemDark = androidx.compose.foundation.isSystemInDarkTheme()
+    val isDark = isDarkPreferred ?: isSystemDark
+
+    Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
+        Text(
+            stringResource(R.string.settings_title), 
+            fontSize = 20.sp, 
+            fontWeight = FontWeight.Bold, 
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(), 
+            horizontalArrangement = Arrangement.SpaceBetween, 
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(stringResource(R.string.dark_mode), color = MaterialTheme.colorScheme.onBackground)
+            Switch(
+                checked = isDark, 
+                onCheckedChange = { settingsViewModel.toggleDarkMode(it) },
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = MaterialTheme.colorScheme.primary,
+                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                    checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                    uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(), 
+            horizontalArrangement = Arrangement.SpaceBetween, 
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(stringResource(R.string.app_language), color = MaterialTheme.colorScheme.onBackground)
+            TextButton(onClick = { 
+                val nextLang = if (language == "in") "en" else "in"
+                settingsViewModel.setLanguage(nextLang)
+            }) {
+                Text(
+                    stringResource(R.string.lang_label), 
+                    fontWeight = FontWeight.Bold, 
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+    }
+}

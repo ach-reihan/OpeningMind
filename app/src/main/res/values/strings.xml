@@ -1,0 +1,57 @@
+<resources>
+    <string name="app_name">OpeningMind</string>
+
+    <!-- Navigation Tabs -->
+    <string name="tab_dashboard">Dashboard</string>
+    <string name="tab_kamus_eco">Kamus ECO</string>
+    <string name="tab_repertoire">Repertoar</string>
+    <string name="tab_ai_advisor">AI Advisor</string>
+    <string name="tab_settings">Pengaturan</string>
+
+    <!-- Dashboard -->
+    <string name="welcome_message">Selamat Datang di OpeningMind</string>
+    <string name="dashboard_subtitle">Brankas catur pribadi kamu.</string>
+    <string name="local_stats_title">Statistik Repertoar Lokal</string>
+    <string name="total_notes">Total Catatan: %1$d Variasi</string>
+
+    <!-- Browse -->
+    <string name="lichess_kamus_title">Kamus Pembukaan (Lichess)</string>
+
+    <!-- Repertoire -->
+    <string name="my_repertoire_title">Repertoar Saya</string>
+    <string name="add_repertoire">Tambah</string>
+
+    <!-- AI Advisor -->
+    <string name="ai_advisor_title">Grandmaster AI Advisor</string>
+    <string name="ai_powered_by">Didukung oleh Azure DeepSeek-V4-Flash</string>
+    <string name="ask_ai_hint">Tanyakan taktik opening...</string>
+    <string name="ask_ai_button">Tanya AI</string>
+    <string name="ai_empty_state">Tulis pertanyaanmu di atas dan ketuk tombol Tanya AI untuk berkonsultasi dengan pelatih catur pintar.</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Pengaturan</string>
+    <string name="dark_mode">Mode Gelap</string>
+    <string name="app_language">Bahasa Aplikasi</string>
+    <string name="lang_label">ID / EN</string>
+
+    <!-- Detail -->
+    <string name="detail_title">Detail Analisis</string>
+    <string name="back">Kembali</string>
+    <string name="chess_board_placeholder">[Gambar Papan Catur Statis]</string>
+    <string name="notation_label">Notasi: %1$s</string>
+    <string name="edit_button">Edit</string>
+    <string name="delete_button">Hapus</string>
+
+    <!-- Form -->
+    <string name="add_title">Tambah Repertoar</string>
+    <string name="edit_title">Edit Repertoar</string>
+    <string name="eco_hint">Kode ECO (Contoh: B20)</string>
+    <string name="opening_name_hint">Nama Pembukaan</string>
+    <string name="notation_hint">Notasi Catur</string>
+    <string name="analysis_hint">Analisis Taktis</string>
+    <string name="save_button">Simpan</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_subtitle">Personal Chess Vault. Simpan variasi opening dan analisis rahasiamu secara offline dan terstruktur.</string>
+    <string name="start_button">Mulai Sekarang</string>
+</resources>
