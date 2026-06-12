@@ -16,10 +16,12 @@
 
     <!-- Browse -->
     <string name="lichess_kamus_title">Kamus Pembukaan (Lichess)</string>
+    <string name="search_opening_hint">Cari pembukaan...</string>
 
     <!-- Repertoire -->
     <string name="my_repertoire_title">Repertoar Saya</string>
     <string name="add_repertoire">Tambah</string>
+    <string name="search_repertoire_hint">Cari repertoar...</string>
 
     <!-- AI Advisor -->
     <string name="ai_advisor_title">Grandmaster AI Advisor</string>

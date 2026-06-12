@@ -18,6 +18,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import android.media.SoundPool
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.staticCompositionLocalOf
+
 import com.openingmind.presentation.RepertoireViewModel
 import com.openingmind.presentation.SettingsViewModel
 import com.openingmind.presentation.screens.DetailScreen
@@ -27,6 +37,8 @@ import com.openingmind.presentation.screens.OnboardingScreen
 import com.openingmind.presentation.theme.OpeningMindTheme
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
+
+val LocalAudioPlayer = staticCompositionLocalOf<() -> Unit> { {} }
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -41,11 +53,11 @@ class MainActivity : ComponentActivity() {
 
             // Create a localized context for immediate UI updates
             val context = LocalContext.current
-            val localizedContext = remember(language) {
+            val currentConfig = androidx.compose.ui.platform.LocalConfiguration.current
+            val localizedContext = remember(language, currentConfig) {
                 val locale = Locale(language)
                 Locale.setDefault(locale)
-                val configuration = context.resources.configuration
-                val newConfig = Configuration(configuration)
+                val newConfig = Configuration(currentConfig)
                 newConfig.setLocale(locale)
                 context.createConfigurationContext(newConfig)
             }
@@ -53,7 +65,25 @@ class MainActivity : ComponentActivity() {
             // Initialize viewModel here where LocalContext is still the Activity context
             val viewModel: RepertoireViewModel = hiltViewModel()
 
-            CompositionLocalProvider(LocalContext provides localizedContext) {
+            // Initialize SoundPool globally
+            val contextForSound = LocalContext.current
+            val soundPool = remember { SoundPool.Builder().setMaxStreams(2).build() }
+            val clickSoundId = remember { soundPool.load(contextForSound, R.raw.interface_click_sfx, 1) }
+
+            DisposableEffect(Unit) {
+                onDispose {
+                    soundPool.release()
+                }
+            }
+
+            val playClick: () -> Unit = {
+                soundPool.play(clickSoundId, 1f, 1f, 1, 0, 1f)
+            }
+
+            CompositionLocalProvider(
+                LocalContext provides localizedContext,
+                LocalAudioPlayer provides playClick
+            ) {
                 OpeningMindTheme(darkTheme = isDarkPreferred ?: androidx.compose.foundation.isSystemInDarkTheme()) {
                     OpeningMindAppNavigation(settingsViewModel, viewModel)
                 }
@@ -92,7 +122,11 @@ fun OpeningMindAppNavigation(
 
         composable(
             route = "detail/{id}",
-            arguments = listOf(navArgument("id") { type = NavType.IntType })
+            arguments = listOf(navArgument("id") { type = NavType.IntType }),
+            enterTransition = { scaleIn(initialScale = 0.9f, animationSpec = tween(300)) + fadeIn(animationSpec = tween(300)) },
+            exitTransition = { scaleOut(targetScale = 0.9f, animationSpec = tween(300)) + fadeOut(animationSpec = tween(300)) },
+            popEnterTransition = { scaleIn(initialScale = 0.9f, animationSpec = tween(300)) + fadeIn(animationSpec = tween(300)) },
+            popExitTransition = { scaleOut(targetScale = 0.9f, animationSpec = tween(300)) + fadeOut(animationSpec = tween(300)) }
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getInt("id") ?: 0
             DetailScreen(
@@ -103,7 +137,13 @@ fun OpeningMindAppNavigation(
             )
         }
 
-        composable("form") {
+        composable(
+            route = "form",
+            enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Up, tween(300)) },
+            exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Down, tween(300)) },
+            popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Up, tween(300)) },
+            popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Down, tween(300)) }
+        ) {
             FormScreen(
                 viewModel = viewModel,
                 onNavigateBack = { navController.popBackStack() }

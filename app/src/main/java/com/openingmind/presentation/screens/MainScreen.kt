@@ -13,6 +13,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import com.openingmind.R
 import com.openingmind.presentation.RepertoireViewModel
 import com.openingmind.presentation.SettingsViewModel
@@ -25,7 +32,9 @@ fun MainScreen(
     onNavigateToDetail: (Int) -> Unit,
     onNavigateToForm: () -> Unit
 ) {
-    var selectedTab by remember { mutableStateOf(0) }
+    val playClick = com.openingmind.LocalAudioPlayer.current
+
+    var selectedTab by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(0) }
     val tabs = listOf(
         stringResource(R.string.tab_dashboard),
         stringResource(R.string.tab_kamus_eco),
@@ -65,7 +74,10 @@ fun MainScreen(
                             ) 
                         },
                         selected = selectedTab == index,
-                        onClick = { selectedTab = index },
+                        onClick = { 
+                            playClick()
+                            selectedTab = index 
+                        },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = MaterialTheme.colorScheme.primary,
                             unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
@@ -78,12 +90,50 @@ fun MainScreen(
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
-            when (selectedTab) {
-                0 -> DashboardTab(viewModel)
-                1 -> BrowseTab(viewModel)
-                2 -> RepertoireTab(viewModel, onNavigateToDetail, onNavigateToForm)
-                3 -> AiAdvisorTab(viewModel)
-                4 -> SettingsTab(settingsViewModel)
+            AnimatedContent(
+                targetState = selectedTab,
+                transitionSpec = {
+                    if (targetState > initialState) {
+                        (slideInHorizontally(
+                            animationSpec = tween(300),
+                            initialOffsetX = { fullWidth -> fullWidth }
+                        ) + fadeIn(animationSpec = tween(300))).togetherWith(
+                            slideOutHorizontally(
+                                animationSpec = tween(300),
+                                targetOffsetX = { fullWidth -> -fullWidth }
+                            ) + fadeOut(animationSpec = tween(300))
+                        )
+                    } else {
+                        (slideInHorizontally(
+                            animationSpec = tween(300),
+                            initialOffsetX = { fullWidth -> -fullWidth }
+                        ) + fadeIn(animationSpec = tween(300))).togetherWith(
+                            slideOutHorizontally(
+                                animationSpec = tween(300),
+                                targetOffsetX = { fullWidth -> fullWidth }
+                            ) + fadeOut(animationSpec = tween(300))
+                        )
+                    }
+                },
+                label = "tab_transition"
+            ) { targetTab ->
+                when (targetTab) {
+                    0 -> DashboardTab(viewModel)
+                    1 -> BrowseTab(viewModel)
+                    2 -> RepertoireTab(
+                        viewModel, 
+                        onNavigateToDetail = { id ->
+                            playClick()
+                            onNavigateToDetail(id)
+                        }, 
+                        onNavigateToForm = {
+                            playClick()
+                            onNavigateToForm()
+                        }
+                    )
+                    3 -> AiAdvisorTab(viewModel)
+                    4 -> SettingsTab(settingsViewModel)
+                }
             }
         }
     }
@@ -130,6 +180,7 @@ fun DashboardTab(viewModel: RepertoireViewModel) {
 fun BrowseTab(viewModel: RepertoireViewModel) {
     val remoteOpenings by viewModel.remoteOpenings.collectAsState()
     val isLoading by viewModel.isRemoteLoading.collectAsState()
+    val searchQuery by viewModel.searchQueryKamus.collectAsState()
 
     Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
         Text(
@@ -139,6 +190,20 @@ fun BrowseTab(viewModel: RepertoireViewModel) {
             color = MaterialTheme.colorScheme.onBackground
         )
         Spacer(modifier = Modifier.height(16.dp))
+        
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { viewModel.updateSearchQueryKamus(it) },
+            placeholder = { Text(stringResource(R.string.search_opening_hint)) },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline
+            )
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
         if (isLoading) {
             CircularProgressIndicator(
                 color = MaterialTheme.colorScheme.primary, 
@@ -178,6 +243,7 @@ fun RepertoireTab(
     onNavigateToForm: () -> Unit
 ) {
     val localRepertoires by viewModel.localRepertoires.collectAsState()
+    val searchQuery by viewModel.searchQueryRepertoar.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize().padding(24.dp)) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -188,7 +254,21 @@ fun RepertoireTab(
                 color = MaterialTheme.colorScheme.onBackground
             )
             Spacer(modifier = Modifier.height(16.dp))
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { viewModel.updateSearchQueryRepertoar(it) },
+                placeholder = { Text(stringResource(R.string.search_repertoire_hint)) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                )
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.weight(1f)) {
                 items(localRepertoires) { item ->
                     Card(
                         colors = CardDefaults.cardColors(
@@ -235,6 +315,7 @@ fun AiAdvisorTab(viewModel: RepertoireViewModel) {
     var query by remember { mutableStateOf("") }
     val aiResponse by viewModel.aiResponse.collectAsState()
     val isLoading by viewModel.isAiLoading.collectAsState()
+    val playClick = com.openingmind.LocalAudioPlayer.current
 
     Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
         Text(
@@ -261,7 +342,10 @@ fun AiAdvisorTab(viewModel: RepertoireViewModel) {
         )
         Spacer(modifier = Modifier.height(12.dp))
         Button(
-            onClick = { viewModel.askAIChessAdvisor(query) },
+            onClick = { 
+                playClick()
+                viewModel.askAIChessAdvisor(query) 
+            },
             enabled = query.isNotEmpty() && !isLoading,
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
@@ -301,6 +385,7 @@ fun SettingsTab(settingsViewModel: SettingsViewModel) {
     val language by settingsViewModel.language.collectAsState()
     val isSystemDark = androidx.compose.foundation.isSystemInDarkTheme()
     val isDark = isDarkPreferred ?: isSystemDark
+    val playClick = com.openingmind.LocalAudioPlayer.current
 
     Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
         Text(
@@ -318,7 +403,10 @@ fun SettingsTab(settingsViewModel: SettingsViewModel) {
             Text(stringResource(R.string.dark_mode), color = MaterialTheme.colorScheme.onBackground)
             Switch(
                 checked = isDark, 
-                onCheckedChange = { settingsViewModel.toggleDarkMode(it) },
+                onCheckedChange = { 
+                    playClick()
+                    settingsViewModel.toggleDarkMode(it) 
+                },
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = MaterialTheme.colorScheme.primary,
                     uncheckedThumbColor = MaterialTheme.colorScheme.outline,
@@ -335,6 +423,7 @@ fun SettingsTab(settingsViewModel: SettingsViewModel) {
         ) {
             Text(stringResource(R.string.app_language), color = MaterialTheme.colorScheme.onBackground)
             TextButton(onClick = { 
+                playClick()
                 val nextLang = if (language == "in") "en" else "in"
                 settingsViewModel.setLanguage(nextLang)
             }) {

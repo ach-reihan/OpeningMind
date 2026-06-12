@@ -16,10 +16,12 @@
 
     <!-- Browse -->
     <string name="lichess_kamus_title">Opening Dictionary (Lichess)</string>
+    <string name="search_opening_hint">Search openings...</string>
 
     <!-- Repertoire -->
     <string name="my_repertoire_title">My Repertoire</string>
     <string name="add_repertoire">Add</string>
+    <string name="search_repertoire_hint">Search repertoire...</string>
 
     <!-- AI Advisor -->
     <string name="ai_advisor_title">Grandmaster AI Advisor</string>

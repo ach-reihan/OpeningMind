@@ -26,6 +26,7 @@ fun FormScreen(
     val notation by viewModel.formNotation.collectAsState()
     val desc by viewModel.formDescription.collectAsState()
     val editingId by viewModel.editingId.collectAsState()
+    val playClick = com.openingmind.LocalAudioPlayer.current
 
     Scaffold(
         topBar = {
@@ -37,7 +38,10 @@ fun FormScreen(
                     ) 
                 },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
+                    IconButton(onClick = { 
+                        playClick()
+                        onNavigateBack() 
+                    }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_back), 
                             contentDescription = stringResource(R.string.back), 
@@ -105,6 +109,7 @@ fun FormScreen(
             Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = {
+                    playClick()
                     viewModel.saveRepertoire()
                     onNavigateBack()
                 },
