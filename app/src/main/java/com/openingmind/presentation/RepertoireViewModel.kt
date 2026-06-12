@@ -21,11 +21,34 @@ class RepertoireViewModel @Inject constructor(
     private val repository: RepertoireRepository
 ) : ViewModel() {
 
-    val localRepertoires: StateFlow<List<Repertoire>> = getLocalRepertoiresUseCase()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    private val _searchQueryKamus = MutableStateFlow("")
+    val searchQueryKamus: StateFlow<String> = _searchQueryKamus
 
-    private val _remoteOpenings = MutableStateFlow<List<Repertoire>>(emptyList())
-    val remoteOpenings: StateFlow<List<Repertoire>> = _remoteOpenings
+    private val _searchQueryRepertoar = MutableStateFlow("")
+    val searchQueryRepertoar: StateFlow<String> = _searchQueryRepertoar
+
+    val localRepertoires: StateFlow<List<Repertoire>> = kotlinx.coroutines.flow.combine(
+        getLocalRepertoiresUseCase(),
+        _searchQueryRepertoar
+    ) { repertoires, query ->
+        if (query.isBlank()) repertoires
+        else repertoires.filter {
+            it.name.contains(query, ignoreCase = true) ||
+            it.ecoCode.contains(query, ignoreCase = true)
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    private val _allRemoteOpenings = MutableStateFlow<List<Repertoire>>(emptyList())
+    val remoteOpenings: StateFlow<List<Repertoire>> = kotlinx.coroutines.flow.combine(
+        _allRemoteOpenings,
+        _searchQueryKamus
+    ) { openings, query ->
+        if (query.isBlank()) openings
+        else openings.filter {
+            it.name.contains(query, ignoreCase = true) ||
+            it.ecoCode.contains(query, ignoreCase = true)
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private val _isRemoteLoading = MutableStateFlow(false)
     val isRemoteLoading: StateFlow<Boolean> = _isRemoteLoading
@@ -49,9 +72,17 @@ class RepertoireViewModel @Inject constructor(
     fun fetchRemoteOpenings() {
         viewModelScope.launch {
             _isRemoteLoading.value = true
-            _remoteOpenings.value = repository.getRemoteOpenings()
+            _allRemoteOpenings.value = repository.getRemoteOpenings()
             _isRemoteLoading.value = false
         }
+    }
+
+    fun updateSearchQueryKamus(query: String) {
+        _searchQueryKamus.value = query
+    }
+
+    fun updateSearchQueryRepertoar(query: String) {
+        _searchQueryRepertoar.value = query
     }
 
     fun startEditing(repertoire: Repertoire) {

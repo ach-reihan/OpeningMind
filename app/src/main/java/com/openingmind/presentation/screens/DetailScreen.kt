@@ -25,6 +25,7 @@ fun DetailScreen(
 ) {
     val repertoires by viewModel.localRepertoires.collectAsState()
     val item = repertoires.find { it.id == id }
+    val playClick = com.openingmind.LocalAudioPlayer.current
 
     Scaffold(
         topBar = {
@@ -36,7 +37,10 @@ fun DetailScreen(
                     ) 
                 },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
+                    IconButton(onClick = { 
+                        playClick()
+                        onNavigateBack() 
+                    }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_back), 
                             contentDescription = stringResource(R.string.back), 
@@ -102,6 +106,7 @@ fun DetailScreen(
                 ) {
                     Button(
                         onClick = {
+                            playClick()
                             viewModel.startEditing(it)
                             onNavigateToEdit()
                         },
@@ -122,6 +127,7 @@ fun DetailScreen(
                     }
                     Button(
                         onClick = {
+                            playClick()
                             viewModel.deleteRepertoire(it)
                             onNavigateBack()
                         },
