@@ -75,8 +75,9 @@ object AppModule {
     fun provideRepertoireRepository(
         dao: RepertoireDao,
         lichessApi: LichessApiService,
-        azureApi: AzureAiService
+        azureApi: AzureAiService,
+        @ApplicationContext context: Context
     ): RepertoireRepository {
-        return RepertoireRepositoryImpl(dao, lichessApi, azureApi)
+        return RepertoireRepositoryImpl(dao, lichessApi, azureApi, context)
     }
 }

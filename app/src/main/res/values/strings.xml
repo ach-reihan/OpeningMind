@@ -13,6 +13,11 @@
     <string name="dashboard_subtitle">Brankas catur pribadi kamu.</string>
     <string name="local_stats_title">Statistik Repertoar Lokal</string>
     <string name="total_notes">Total Catatan: %1$d Variasi</string>
+    <string name="recent_activity">Aktivitas Terkini</string>
+    <string name="last_local">Repertoar Lokal Terakhir</string>
+    <string name="last_dictionary">Kamus Lichess Terakhir</string>
+    <string name="last_ai_advice_label">Saran AI Terakhir</string>
+    <string name="no_recent_activity">Belum ada aktivitas.</string>
 
     <!-- Browse -->
     <string name="lichess_kamus_title">Kamus Pembukaan (Lichess)</string>
@@ -26,6 +31,8 @@
     <!-- AI Advisor -->
     <string name="ai_advisor_title">Grandmaster AI Advisor</string>
     <string name="ai_powered_by">Didukung oleh Azure DeepSeek-V4-Flash</string>
+    <string name="ai_system_prompt">Kamu adalah pelatih dan grandmaster catur profesional. Berikan saran taktis pembukaan catur secara ringkas dalam 2-3 kalimat saja. Jika informasi tersedia, sertakan kode ECO, nama pembukaan, dan notasi lengkap di awal jawabanmu dengan format: [ECO - Nama] (Notasi).</string>
+    <string name="ai_thinking">Grandmaster sedang berpikir...</string>
     <string name="ask_ai_hint">Tanyakan taktik opening...</string>
     <string name="ask_ai_button">Tanya AI</string>
     <string name="ai_empty_state">Tulis pertanyaanmu di atas dan ketuk tombol Tanya AI untuk berkonsultasi dengan pelatih catur pintar.</string>
@@ -37,12 +44,14 @@
     <string name="lang_label">ID / EN</string>
 
     <!-- Detail -->
-    <string name="detail_title">Detail Analisis</string>
+    <string name="detail_title">Detail Pembukaan</string>
     <string name="back">Kembali</string>
     <string name="chess_board_placeholder">[Gambar Papan Catur Statis]</string>
     <string name="notation_label">Notasi: %1$s</string>
     <string name="edit_button">Edit</string>
     <string name="delete_button">Hapus</string>
+    <string name="open_in_browser">Buka di Browser</string>
+    <string name="browser_error">Gagal membuka browser.</string>
 
     <!-- Form -->
     <string name="add_title">Tambah Repertoar</string>
@@ -56,4 +65,21 @@
     <!-- Onboarding -->
     <string name="onboarding_subtitle">Personal Chess Vault. Simpan variasi opening dan analisis rahasiamu secara offline dan terstruktur.</string>
     <string name="start_button">Mulai Sekarang</string>
+    <!-- Repository & Data -->
+    <string name="lichess_popular_opening">Pembukaan populer Lichess (Notasi: %1$s).</string>
+    <string name="lichess_stats_info">Statistik: Putih %1$d%%, Remis %2$d%%, Hitam %3$d%%.</string>
+    <string name="lichess_avg_rating">Rating Rata-rata: %1$d.</string>
+    <string name="lichess_popular_variation">Variasi populer dari %1$s.</string>
+    <string name="lichess_initial_position">Posisi awal pembukaan %1$s.</string>
+    <string name="lichess_info_fallback">Informasi pembukaan dari Lichess.</string>
+    <string name="lichess_analysis_desc">Analisis pembukaan Lichess untuk urutan langkah ini.</string>
+    <string name="lichess_variation_desc">Variasi dari %1$s.</string>
+
+    <string name="fallback_sicilian_name">Pertahanan Sicilian</string>
+    <string name="fallback_sicilian_desc">Tanggapan paling populer dan dinamis terhadap langkah e4.</string>
+    <string name="fallback_giuoco_name">Giuoco Piano</string>
+    <string name="fallback_giuoco_desc">Pembukaan Italian Game klasik yang sangat solid.</string>
+
+    <string name="ai_no_response">Tidak ada respons dari asisten AI catur.</string>
+    <string name="ai_error_prefix">Gagal mendapatkan saran taktis dari Azure AI Advisor: %1$s</string>
 </resources>

@@ -27,10 +27,13 @@ android {
             localProperties.load(localPropertiesFile.inputStream())
         }
 
-        val azureEndpoint = localProperties.getProperty("AZURE_AI_ENDPOINT") ?: "\"\""
-        val azureKey = localProperties.getProperty("AZURE_AI_KEY") ?: "\"\""
-        buildConfigField("String", "AZURE_AI_ENDPOINT", azureEndpoint)
-        buildConfigField("String", "AZURE_AI_KEY", azureKey)
+        val azureEndpoint = localProperties.getProperty("AZURE_AI_ENDPOINT")?.removeSurrounding("\"") ?: ""
+        val azureKey = localProperties.getProperty("AZURE_AI_KEY")?.removeSurrounding("\"") ?: ""
+        val lichessToken = localProperties.getProperty("LICHESS_TOKEN")?.removeSurrounding("\"") ?: ""
+        
+        buildConfigField("String", "AZURE_AI_ENDPOINT", "\"$azureEndpoint\"")
+        buildConfigField("String", "AZURE_AI_KEY", "\"$azureKey\"")
+        buildConfigField("String", "LICHESS_TOKEN", "\"$lichessToken\"")
     }
 
     buildTypes {

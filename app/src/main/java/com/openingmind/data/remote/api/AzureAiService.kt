@@ -5,17 +5,22 @@ import retrofit2.http.Header
 import retrofit2.http.POST
 
 interface AzureAiService {
-    @POST("chat/completions?api-version=2024-05-01-preview")
+    @POST("openai/v1/chat/completions")
     suspend fun getChatCompletion(
-        @Header("Authorization") apiKey: String,
+        @Header("Authorization") auth: String,
         @Body request: AzureChatRequest
     ): AzureChatResponse
 }
 
 data class AzureChatRequest(
-    val messages: List<AzureMessage>,
     val model: String = "DeepSeek-V4-Flash",
-    val max_tokens: Int = 300
+    val messages: List<AzureMessage>,
+    val max_tokens: Int = 16384,
+    val temperature: Double = 0.8,
+    val top_p: Double = 0.1,
+    val presence_penalty: Double = 0.0,
+    val frequency_penalty: Double = 0.0,
+    val reasoning_effort: String = "none"
 )
 
 data class AzureMessage(
@@ -24,6 +29,8 @@ data class AzureMessage(
 )
 
 data class AzureChatResponse(
+    val id: String?,
+    val created: Long?,
     val choices: List<AzureChoice>
 )
 

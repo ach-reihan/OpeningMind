@@ -13,6 +13,11 @@
     <string name="dashboard_subtitle">Your personal chess vault.</string>
     <string name="local_stats_title">Local Repertoire Statistics</string>
     <string name="total_notes">Total Notes: %1$d Variations</string>
+    <string name="recent_activity">Recent Activity</string>
+    <string name="last_local">Last Local Repertoire</string>
+    <string name="last_dictionary">Last Lichess Dictionary</string>
+    <string name="last_ai_advice_label">Last AI Advice</string>
+    <string name="no_recent_activity">No recent activity yet.</string>
 
     <!-- Browse -->
     <string name="lichess_kamus_title">Opening Dictionary (Lichess)</string>
@@ -26,6 +31,8 @@
     <!-- AI Advisor -->
     <string name="ai_advisor_title">Grandmaster AI Advisor</string>
     <string name="ai_powered_by">Powered by Azure DeepSeek-V4-Flash</string>
+    <string name="ai_system_prompt">You are a professional chess coach and grandmaster. Provide concise chess opening tactical advice in just 2-3 sentences. If information is available, include the ECO code, opening name, and full notation at the beginning of your response in the format: [ECO - Name] (Notation).</string>
+    <string name="ai_thinking">Grandmaster is thinking...</string>
     <string name="ask_ai_hint">Ask opening tactics…</string>
     <string name="ask_ai_button">Ask AI</string>
     <string name="ai_empty_state">Type your question above and tap the Ask AI button to consult with an intelligent chess coach.</string>
@@ -37,12 +44,14 @@
     <string name="lang_label">ID / EN</string>
 
     <!-- Detail -->
-    <string name="detail_title">Analysis Detail</string>
+    <string name="detail_title">Opening Detail</string>
     <string name="back">Back</string>
     <string name="chess_board_placeholder">[Static Chess Board Image]</string>
     <string name="notation_label">Notation: %1$s</string>
     <string name="edit_button">Edit</string>
     <string name="delete_button">Delete</string>
+    <string name="open_in_browser">Open in Browser</string>
+    <string name="browser_error">Failed to open browser.</string>
 
     <!-- Form -->
     <string name="add_title">Add Repertoire</string>
@@ -56,4 +65,21 @@
     <!-- Onboarding -->
     <string name="onboarding_subtitle">Personal Chess Vault. Save your secret opening variations and analysis offline and structured.</string>
     <string name="start_button">Start Now</string>
+    <!-- Repository & Data -->
+    <string name="lichess_popular_opening">Lichess popular opening (Notation: %1$s).</string>
+    <string name="lichess_stats_info">Statistics: White %1$d%%, Draw %2$d%%, Black %3$d%%.</string>
+    <string name="lichess_avg_rating">Average Rating: %1$d.</string>
+    <string name="lichess_popular_variation">Popular variation of %1$s.</string>
+    <string name="lichess_initial_position">Initial position of %1$s.</string>
+    <string name="lichess_info_fallback">Opening information from Lichess.</string>
+    <string name="lichess_analysis_desc">Lichess opening analysis for this move sequence.</string>
+    <string name="lichess_variation_desc">Variation of %1$s.</string>
+
+    <string name="fallback_sicilian_name">Sicilian Defense</string>
+    <string name="fallback_sicilian_desc">The most popular and dynamic response to e4.</string>
+    <string name="fallback_giuoco_name">Giuoco Piano</string>
+    <string name="fallback_giuoco_desc">Classic Italian Game opening, very solid.</string>
+
+    <string name="ai_no_response">No response from chess AI assistant.</string>
+    <string name="ai_error_prefix">Failed to get tactical advice from Azure AI Advisor: %1$s</string>
 </resources>

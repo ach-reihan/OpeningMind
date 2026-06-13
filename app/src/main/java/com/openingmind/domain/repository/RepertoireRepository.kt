@@ -9,6 +9,7 @@ interface RepertoireRepository {
     suspend fun insertRepertoire(repertoire: Repertoire)
     suspend fun updateRepertoire(repertoire: Repertoire)
     suspend fun deleteRepertoire(repertoire: Repertoire)
-    suspend fun getRemoteOpenings(): List<Repertoire>
-    suspend fun getAIChessAdvice(prompt: String): String
+    suspend fun getRemoteOpenings(language: String): List<Repertoire>
+    suspend fun getAIChessAdvice(prompt: String, systemPrompt: String): String
+    suspend fun getRemoteOpeningByMoves(moves: String, language: String): Repertoire?
 }

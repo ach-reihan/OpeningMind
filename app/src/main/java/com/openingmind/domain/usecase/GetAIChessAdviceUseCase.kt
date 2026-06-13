@@ -6,7 +6,7 @@ import javax.inject.Inject
 class GetAIChessAdviceUseCase @Inject constructor(
     private val repository: RepertoireRepository
 ) {
-    suspend operator fun invoke(prompt: String): String {
-        return repository.getAIChessAdvice(prompt)
+    suspend operator fun invoke(prompt: String, systemPrompt: String): String {
+        return repository.getAIChessAdvice(prompt, systemPrompt)
     }
 }

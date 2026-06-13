@@ -20,6 +20,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import com.openingmind.R
 import com.openingmind.presentation.RepertoireViewModel
 import com.openingmind.presentation.SettingsViewModel
@@ -29,7 +31,7 @@ import com.openingmind.presentation.SettingsViewModel
 fun MainScreen(
     viewModel: RepertoireViewModel,
     settingsViewModel: SettingsViewModel,
-    onNavigateToDetail: (Int) -> Unit,
+    onNavigateToDetail: (Int, Boolean) -> Unit,
     onNavigateToForm: () -> Unit
 ) {
     val playClick = com.openingmind.LocalAudioPlayer.current
@@ -119,12 +121,21 @@ fun MainScreen(
             ) { targetTab ->
                 when (targetTab) {
                     0 -> DashboardTab(viewModel)
-                    1 -> BrowseTab(viewModel)
+                    1 -> BrowseTab(
+                        viewModel,
+                        onNavigateToDetail = { id ->
+                            playClick()
+                            onNavigateToDetail(id, true)
+                        }
+                    )
                     2 -> RepertoireTab(
                         viewModel, 
                         onNavigateToDetail = { id ->
                             playClick()
-                            onNavigateToDetail(id)
+                            viewModel.localRepertoires.value.find { it.id == id }?.let {
+                                viewModel.selectLocalRepertoire(it)
+                            }
+                            onNavigateToDetail(id, false)
                         }, 
                         onNavigateToForm = {
                             playClick()
@@ -142,42 +153,110 @@ fun MainScreen(
 @Composable
 fun DashboardTab(viewModel: RepertoireViewModel) {
     val localCount by viewModel.localRepertoires.collectAsState()
-    Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
+    val lastLocal by viewModel.lastLocalRepertoire.collectAsState()
+    val lastDict by viewModel.lastDictionaryOpening.collectAsState()
+    val lastAi by viewModel.lastAiAdvice.collectAsState()
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
         Text(
-            stringResource(R.string.welcome_message), 
-            fontSize = 22.sp, 
-            fontWeight = FontWeight.Bold, 
+            stringResource(R.string.welcome_message),
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground
         )
         Text(
-            stringResource(R.string.dashboard_subtitle), 
+            stringResource(R.string.dashboard_subtitle),
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
         )
         Spacer(modifier = Modifier.height(24.dp))
+        
+        // Stats Card
         Card(
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
-            ), 
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    stringResource(R.string.local_stats_title), 
-                    fontWeight = FontWeight.Bold, 
-                    color = MaterialTheme.colorScheme.primary
+                    stringResource(R.string.local_stats_title),
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    stringResource(R.string.total_notes, localCount.size), 
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    stringResource(R.string.total_notes, localCount.size),
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
                 )
             }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            stringResource(R.string.recent_activity),
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+
+        if (lastLocal == null && lastDict == null && lastAi == null) {
+            Text(
+                stringResource(R.string.no_recent_activity),
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+        }
+
+        lastLocal?.let {
+            RecentActivityCard(stringResource(R.string.last_local), it)
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        lastDict?.let {
+            RecentActivityCard(stringResource(R.string.last_dictionary), it)
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        lastAi?.let {
+            RecentActivityCard(stringResource(R.string.last_ai_advice_label), it)
         }
     }
 }
 
 @Composable
-fun BrowseTab(viewModel: RepertoireViewModel) {
+fun RecentActivityCard(label: String, value: String) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                label,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                value,
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
+fun BrowseTab(
+    viewModel: RepertoireViewModel,
+    onNavigateToDetail: (Int) -> Unit
+) {
     val remoteOpenings by viewModel.remoteOpenings.collectAsState()
     val isLoading by viewModel.isRemoteLoading.collectAsState()
     val searchQuery by viewModel.searchQueryKamus.collectAsState()
@@ -216,7 +295,11 @@ fun BrowseTab(viewModel: RepertoireViewModel) {
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.surfaceVariant
                         ), 
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            viewModel.selectRemoteOpening(opening)
+                            onNavigateToDetail(opening.id)
+                        }
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
@@ -341,10 +424,16 @@ fun AiAdvisorTab(viewModel: RepertoireViewModel) {
             )
         )
         Spacer(modifier = Modifier.height(12.dp))
+        val aiSystemPrompt = stringResource(R.string.ai_system_prompt)
+        val aiThinkingMsg = stringResource(R.string.ai_thinking)
         Button(
             onClick = { 
                 playClick()
-                viewModel.askAIChessAdvisor(query) 
+                viewModel.askAIChessAdvisor(
+                    query, 
+                    systemPrompt = aiSystemPrompt,
+                    thinkingMsg = aiThinkingMsg
+                )
             },
             enabled = query.isNotEmpty() && !isLoading,
             modifier = Modifier.fillMaxWidth(),
@@ -360,9 +449,15 @@ fun AiAdvisorTab(viewModel: RepertoireViewModel) {
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant
             ),
-            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.6f)
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
         ) {
-            Box(modifier = Modifier.padding(16.dp)) {
+            Box(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxSize()
+            ) {
                 if (isLoading) {
                     CircularProgressIndicator(
                         color = MaterialTheme.colorScheme.primary, 
@@ -371,7 +466,10 @@ fun AiAdvisorTab(viewModel: RepertoireViewModel) {
                 } else {
                     Text(
                         text = aiResponse.ifEmpty { stringResource(R.string.ai_empty_state) },
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
                     )
                 }
             }

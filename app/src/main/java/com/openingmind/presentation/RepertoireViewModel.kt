@@ -18,8 +18,18 @@ import javax.inject.Inject
 class RepertoireViewModel @Inject constructor(
     private val getLocalRepertoiresUseCase: GetLocalRepertoiresUseCase,
     private val getAIChessAdviceUseCase: GetAIChessAdviceUseCase,
-    private val repository: RepertoireRepository
+    private val repository: RepertoireRepository,
+    private val userPreferences: com.openingmind.data.local.UserPreferences
 ) : ViewModel() {
+
+    val lastLocalRepertoire: StateFlow<String?> = userPreferences.lastLocalRepertoire
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    val lastDictionaryOpening: StateFlow<String?> = userPreferences.lastDictionaryOpening
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    val lastAiAdvice: StateFlow<String?> = userPreferences.lastAiAdvice
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     private val _searchQueryKamus = MutableStateFlow("")
     val searchQueryKamus: StateFlow<String> = _searchQueryKamus
@@ -59,6 +69,9 @@ class RepertoireViewModel @Inject constructor(
     private val _isAiLoading = MutableStateFlow(false)
     val isAiLoading: StateFlow<Boolean> = _isAiLoading
 
+    private val _selectedRemoteOpening = MutableStateFlow<Repertoire?>(null)
+    val selectedRemoteOpening: StateFlow<Repertoire?> = _selectedRemoteOpening
+
     val formEco = MutableStateFlow("")
     val formName = MutableStateFlow("")
     val formNotation = MutableStateFlow("")
@@ -66,14 +79,32 @@ class RepertoireViewModel @Inject constructor(
     val editingId = MutableStateFlow<Int?>(null)
 
     init {
-        fetchRemoteOpenings()
+        viewModelScope.launch {
+            userPreferences.language.collect { lang ->
+                android.util.Log.d("RepertoireVM", "Language changed to: $lang, refreshing remote data")
+                _isRemoteLoading.value = true
+                try {
+                    _allRemoteOpenings.value = repository.getRemoteOpenings(lang)
+                } catch (e: Exception) {
+                    android.util.Log.e("RepertoireVM", "Failed to load openings", e)
+                } finally {
+                    _isRemoteLoading.value = false
+                }
+            }
+        }
     }
 
     fun fetchRemoteOpenings() {
         viewModelScope.launch {
+            val lang = userPreferences.language.stateIn(viewModelScope, SharingStarted.Eagerly, "in").value
             _isRemoteLoading.value = true
-            _allRemoteOpenings.value = repository.getRemoteOpenings()
-            _isRemoteLoading.value = false
+            try {
+                _allRemoteOpenings.value = repository.getRemoteOpenings(lang)
+            } catch (e: Exception) {
+                android.util.Log.e("RepertoireVM", "Failed to load openings", e)
+            } finally {
+                _isRemoteLoading.value = false
+            }
         }
     }
 
@@ -127,13 +158,31 @@ class RepertoireViewModel @Inject constructor(
         }
     }
 
-    fun askAIChessAdvisor(prompt: String) {
+    fun askAIChessAdvisor(prompt: String, systemPrompt: String, thinkingMsg: String) {
         viewModelScope.launch {
             _isAiLoading.value = true
-            _aiResponse.value = "Grandmaster sedang berpikir..."
-            val response = getAIChessAdviceUseCase(prompt)
+            _aiResponse.value = thinkingMsg
+            val response = getAIChessAdviceUseCase(prompt, systemPrompt)
             _aiResponse.value = response
             _isAiLoading.value = false
+            userPreferences.saveLastAiAdvice(response)
         }
+    }
+
+    fun selectRemoteOpening(opening: Repertoire) {
+        _selectedRemoteOpening.value = opening
+        viewModelScope.launch {
+            userPreferences.saveLastDictionaryOpening(opening.name)
+        }
+    }
+
+    fun selectLocalRepertoire(repertoire: Repertoire) {
+        viewModelScope.launch {
+            userPreferences.saveLastLocalRepertoire(repertoire.name)
+        }
+    }
+
+    fun clearSelectedRemoteOpening() {
+        _selectedRemoteOpening.value = null
     }
 }

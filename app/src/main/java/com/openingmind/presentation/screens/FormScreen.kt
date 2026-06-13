@@ -2,6 +2,8 @@ package com.openingmind.presentation.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -55,13 +57,34 @@ fun FormScreen(
                 )
             )
         },
+        bottomBar = {
+            Box(modifier = Modifier.padding(24.dp)) {
+                Button(
+                    onClick = {
+                        playClick()
+                        viewModel.saveRepertoire()
+                        onNavigateBack()
+                    },
+                    enabled = eco.isNotEmpty() && name.isNotEmpty() && notation.isNotEmpty(),
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(stringResource(R.string.save_button), fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+        },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(24.dp),
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 0.dp), // Padding managed by bottomBar
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             OutlinedTextField(
@@ -69,6 +92,7 @@ fun FormScreen(
                 onValueChange = { viewModel.formEco.value = it }, 
                 label = { Text(stringResource(R.string.eco_hint)) }, 
                 modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                     unfocusedBorderColor = MaterialTheme.colorScheme.outline
@@ -79,6 +103,7 @@ fun FormScreen(
                 onValueChange = { viewModel.formName.value = it }, 
                 label = { Text(stringResource(R.string.opening_name_hint)) }, 
                 modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                     unfocusedBorderColor = MaterialTheme.colorScheme.outline
@@ -89,6 +114,7 @@ fun FormScreen(
                 onValueChange = { viewModel.formNotation.value = it }, 
                 label = { Text(stringResource(R.string.notation_hint)) }, 
                 modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                     unfocusedBorderColor = MaterialTheme.colorScheme.outline
@@ -98,31 +124,14 @@ fun FormScreen(
                 value = desc, 
                 onValueChange = { viewModel.formDescription.value = it }, 
                 label = { Text(stringResource(R.string.analysis_hint)) }, 
-                modifier = Modifier.fillMaxWidth(), 
-                minLines = 3,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f), 
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                     unfocusedBorderColor = MaterialTheme.colorScheme.outline
                 )
             )
-
-            Spacer(modifier = Modifier.height(24.dp))
-            Button(
-                onClick = {
-                    playClick()
-                    viewModel.saveRepertoire()
-                    onNavigateBack()
-                },
-                enabled = eco.isNotEmpty() && name.isNotEmpty() && notation.isNotEmpty(),
-                modifier = Modifier.fillMaxWidth().height(50.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(stringResource(R.string.save_button), fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            }
         }
     }
 }

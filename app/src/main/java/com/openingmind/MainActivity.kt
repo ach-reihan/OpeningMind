@@ -115,22 +115,33 @@ fun OpeningMindAppNavigation(
             MainScreen(
                 viewModel = viewModel,
                 settingsViewModel = settingsViewModel,
-                onNavigateToDetail = { id -> navController.navigate("detail/$id") },
+                onNavigateToDetail = { id, isRemote -> 
+                    val route = if (isRemote) "detail/$id?isRemote=true" else "detail/$id"
+                    navController.navigate(route) 
+                },
                 onNavigateToForm = { navController.navigate("form") }
             )
         }
 
         composable(
-            route = "detail/{id}",
-            arguments = listOf(navArgument("id") { type = NavType.IntType }),
+            route = "detail/{id}?isRemote={isRemote}",
+            arguments = listOf(
+                navArgument("id") { type = NavType.IntType },
+                navArgument("isRemote") { 
+                    type = NavType.BoolType
+                    defaultValue = false 
+                }
+            ),
             enterTransition = { scaleIn(initialScale = 0.9f, animationSpec = tween(300)) + fadeIn(animationSpec = tween(300)) },
             exitTransition = { scaleOut(targetScale = 0.9f, animationSpec = tween(300)) + fadeOut(animationSpec = tween(300)) },
             popEnterTransition = { scaleIn(initialScale = 0.9f, animationSpec = tween(300)) + fadeIn(animationSpec = tween(300)) },
             popExitTransition = { scaleOut(targetScale = 0.9f, animationSpec = tween(300)) + fadeOut(animationSpec = tween(300)) }
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getInt("id") ?: 0
+            val isRemote = backStackEntry.arguments?.getBoolean("isRemote") ?: false
             DetailScreen(
                 id = id,
+                isRemote = isRemote,
                 viewModel = viewModel,
                 onNavigateBack = { navController.popBackStack() },
                 onNavigateToEdit = { navController.navigate("form") }
