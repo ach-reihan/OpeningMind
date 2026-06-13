@@ -19,7 +19,8 @@ class RepertoireViewModel @Inject constructor(
     private val getLocalRepertoiresUseCase: GetLocalRepertoiresUseCase,
     private val getAIChessAdviceUseCase: GetAIChessAdviceUseCase,
     private val repository: RepertoireRepository,
-    private val userPreferences: com.openingmind.data.local.UserPreferences
+    private val userPreferences: com.openingmind.data.local.UserPreferences,
+    private val getFenFromNotationUseCase: com.openingmind.domain.usecase.GetFenFromNotationUseCase
 ) : ViewModel() {
 
     val lastLocalRepertoire: StateFlow<String?> = userPreferences.lastLocalRepertoire
@@ -187,7 +188,7 @@ class RepertoireViewModel @Inject constructor(
     }
 
     fun getBoardImageUrl(notation: String): String {
-        val fen = com.openingmind.utils.ChessUtils.getFenFromNotation(notation)
+        val fen = getFenFromNotationUseCase(notation)
         val encodedFen = java.net.URLEncoder.encode(fen, "UTF-8")
         return "${com.openingmind.BuildConfig.LICHESS_IMAGE_URL}?fen=$encodedFen&color=white"
     }
