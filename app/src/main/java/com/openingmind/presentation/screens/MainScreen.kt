@@ -351,25 +351,39 @@ fun RepertoireTab(
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.weight(1f)) {
-                items(localRepertoires) { item ->
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        ),
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = { onNavigateToDetail(item.id) }
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(
-                                "${item.ecoCode} - ${item.name}", 
-                                fontWeight = FontWeight.Bold, 
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            Text(
-                                item.notation, 
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+            if (localRepertoires.isEmpty()) {
+                Box(
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.repertoire_empty_state),
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 32.dp)
+                    )
+                }
+            } else {
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.weight(1f)) {
+                    items(localRepertoires) { item ->
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                            ),
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = { onNavigateToDetail(item.id) }
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text(
+                                    "${item.ecoCode} - ${item.name}", 
+                                    fontWeight = FontWeight.Bold, 
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    item.notation, 
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
                     }
                 }

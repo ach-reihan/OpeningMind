@@ -27,6 +27,7 @@
     <string name="my_repertoire_title">Repertoar Saya</string>
     <string name="add_repertoire">Tambah</string>
     <string name="search_repertoire_hint">Cari repertoar...</string>
+    <string name="repertoire_empty_state">Belum ada repertoar. Ketuk tombol + untuk menambahkan variasi pembukaan catur pribadimu!</string>
 
     <!-- AI Advisor -->
     <string name="ai_advisor_title">Grandmaster AI Advisor</string>

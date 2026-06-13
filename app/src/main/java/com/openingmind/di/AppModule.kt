@@ -33,13 +33,21 @@ object AppModule {
             context,
             AppDatabase::class.java,
             "openingmind_db"
-        ).build()
+        )
+        .fallbackToDestructiveMigration()
+        .build()
     }
 
     @Provides
     @Singleton
     fun provideRepertoireDao(db: AppDatabase): RepertoireDao {
         return db.repertoireDao
+    }
+
+    @Provides
+    @Singleton
+    fun provideRemoteOpeningDao(db: AppDatabase): com.openingmind.data.local.dao.RemoteOpeningDao {
+        return db.remoteOpeningDao
     }
 
     // ==========================================
@@ -74,10 +82,11 @@ object AppModule {
     @Singleton
     fun provideRepertoireRepository(
         dao: RepertoireDao,
+        remoteOpeningDao: com.openingmind.data.local.dao.RemoteOpeningDao,
         lichessApi: LichessApiService,
         azureApi: AzureAiService,
         @ApplicationContext context: Context
     ): RepertoireRepository {
-        return RepertoireRepositoryImpl(dao, lichessApi, azureApi, context)
+        return RepertoireRepositoryImpl(dao, remoteOpeningDao, lichessApi, azureApi, context)
     }
 }

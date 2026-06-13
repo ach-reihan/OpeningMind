@@ -4,6 +4,7 @@ import android.content.Context
 import com.openingmind.BuildConfig
 import com.openingmind.R
 import com.openingmind.data.local.dao.RepertoireDao
+import com.openingmind.data.local.entity.RemoteOpeningEntity
 import com.openingmind.data.local.entity.RepertoireEntity
 import com.openingmind.data.remote.api.AzureAiService
 import com.openingmind.data.remote.api.AzureChatRequest
@@ -18,6 +19,7 @@ import javax.inject.Inject
 
 class RepertoireRepositoryImpl @Inject constructor(
     private val dao: RepertoireDao,
+    private val remoteOpeningDao: com.openingmind.data.local.dao.RemoteOpeningDao,
     private val lichessApi: LichessApiService,
     private val azureApi: AzureAiService,
     @ApplicationContext private val context: Context
@@ -193,10 +195,30 @@ class RepertoireRepositoryImpl @Inject constructor(
                 }
             }
             
-            result.sortedBy { it.name }
+            val finalResult = result.sortedBy { it.name }
+            
+            // Save to cache (Primary Fallback)
+            if (finalResult.isNotEmpty()) {
+                remoteOpeningDao.clearRemoteOpeningsByLanguage(language)
+                remoteOpeningDao.insertRemoteOpenings(finalResult.map { 
+                    RemoteOpeningEntity.fromDomain(it, language) 
+                })
+            }
+            
+            finalResult
         } catch (e: Exception) {
-            android.util.Log.e("RepertoireRepo", "Explorer API failed. Token empty? ${BuildConfig.LICHESS_TOKEN.isEmpty()}", e)
-            getFallbackOpenings(localizedContext)
+            android.util.Log.e("RepertoireRepo", "Explorer API failed. Checking cache...", e)
+            
+            // Try loading from cache (Primary Fallback)
+            val cachedOpenings = remoteOpeningDao.getRemoteOpeningsByLanguage(language)
+            if (cachedOpenings.isNotEmpty()) {
+                android.util.Log.d("RepertoireRepo", "Using cached remote openings.")
+                cachedOpenings.map { it.toDomain() }
+            } else {
+                android.util.Log.d("RepertoireRepo", "No cache available. Using hardcoded fallback.")
+                // Hardcoded secondary fallback
+                getFallbackOpenings(localizedContext)
+            }
         }
     }
 

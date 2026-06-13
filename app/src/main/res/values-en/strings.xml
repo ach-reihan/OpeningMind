@@ -27,6 +27,7 @@
     <string name="my_repertoire_title">My Repertoire</string>
     <string name="add_repertoire">Add</string>
     <string name="search_repertoire_hint">Search repertoire...</string>
+    <string name="repertoire_empty_state">No repertoire yet. Tap the + button to add your personal chess opening variations!</string>
 
     <!-- AI Advisor -->
     <string name="ai_advisor_title">Grandmaster AI Advisor</string>
