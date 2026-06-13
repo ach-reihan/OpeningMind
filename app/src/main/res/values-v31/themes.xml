@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.OpeningMind" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Pisahkan logo Splash Screen dari logo App Icon -->
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_splash_scaled</item>
+        <!-- Samakan warna background Splash Screen dengan warna background logo -->
+        <item name="android:windowSplashScreenBackground">#222C38</item>
+    </style>
+</resources>
