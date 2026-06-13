@@ -27,18 +27,13 @@ fun OnboardingScreen(onNavigateToMain: () -> Unit) {
     ) {
         Box(
             modifier = Modifier
-                .size(200.dp)
-                .background(
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), 
-                    RoundedCornerShape(100.dp)
-                ),
+                .size(200.dp),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_lock), 
-                contentDescription = null, 
-                modifier = Modifier.size(100.dp), 
-                tint = MaterialTheme.colorScheme.primary
+            androidx.compose.foundation.Image(
+                painter = painterResource(id = R.drawable.chess_app_icon), 
+                contentDescription = stringResource(R.string.app_name), 
+                modifier = Modifier.size(160.dp)
             )
         }
         Spacer(modifier = Modifier.height(48.dp))

@@ -34,6 +34,7 @@ android {
         buildConfigField("String", "AZURE_AI_ENDPOINT", "\"$azureEndpoint\"")
         buildConfigField("String", "AZURE_AI_KEY", "\"$azureKey\"")
         buildConfigField("String", "LICHESS_TOKEN", "\"$lichessToken\"")
+        buildConfigField("String", "LICHESS_IMAGE_URL", "\"https://lichess.org/export/fen.gif\"")
     }
 
     buildTypes {
@@ -83,4 +84,7 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+    implementation(libs.chesslib)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.gif)
 }

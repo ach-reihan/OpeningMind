@@ -185,4 +185,10 @@ class RepertoireViewModel @Inject constructor(
     fun clearSelectedRemoteOpening() {
         _selectedRemoteOpening.value = null
     }
+
+    fun getBoardImageUrl(notation: String): String {
+        val fen = com.openingmind.utils.ChessUtils.getFenFromNotation(notation)
+        val encodedFen = java.net.URLEncoder.encode(fen, "UTF-8")
+        return "${com.openingmind.BuildConfig.LICHESS_IMAGE_URL}?fen=$encodedFen&color=white"
+    }
 }

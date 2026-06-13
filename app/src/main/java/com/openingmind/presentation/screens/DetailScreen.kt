@@ -82,20 +82,72 @@ fun DetailScreen(
                         .weight(1f)
                         .verticalScroll(rememberScrollState())
                 ) {
+                    val imageUrl = remember(it.notation) { viewModel.getBoardImageUrl(it.notation) }
+
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(200.dp)
+                            .height(240.dp)
                             .background(
                                 MaterialTheme.colorScheme.surfaceVariant, 
                                 RoundedCornerShape(12.dp)
                             ),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            stringResource(R.string.chess_board_placeholder), 
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        var isLoading by remember { mutableStateOf(true) }
+                        var isError by remember { mutableStateOf(false) }
+
+                        val imageLoader = remember(context) {
+                            coil.ImageLoader.Builder(context)
+                                .components {
+                                    if (android.os.Build.VERSION.SDK_INT >= 28) {
+                                        add(coil.decode.ImageDecoderDecoder.Factory())
+                                    } else {
+                                        add(coil.decode.GifDecoder.Factory())
+                                    }
+                                }
+                                .build()
+                        }
+
+                        coil.compose.AsyncImage(
+                            model = coil.request.ImageRequest.Builder(context)
+                                .data(imageUrl)
+                                .crossfade(true)
+                                .build(),
+                            imageLoader = imageLoader,
+                            contentDescription = stringResource(R.string.chess_board_placeholder),
+                            modifier = Modifier.fillMaxSize().padding(16.dp),
+                            contentScale = androidx.compose.ui.layout.ContentScale.Fit,
+                            onLoading = { isLoading = true },
+                            onSuccess = { 
+                                isLoading = false 
+                                isError = false
+                            },
+                            onError = { 
+                                isLoading = false 
+                                isError = true
+                            }
                         )
+                        
+                        if (isLoading) {
+                            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                        }
+                        if (isError) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_book),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(48.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    "Gagal memuat papan", 
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                                    fontSize = 12.sp
+                                )
+                            }
+                        }
                     }
                     Spacer(modifier = Modifier.height(24.dp))
                     Text(
