@@ -98,12 +98,17 @@ fun OpeningMindAppNavigation(
     viewModel: RepertoireViewModel
 ) {
     val navController = rememberNavController()
+    val isOnboardingCompleted by settingsViewModel.isOnboardingCompleted.collectAsState()
 
-    NavHost(navController = navController, startDestination = "onboarding") {
+    NavHost(
+        navController = navController, 
+        startDestination = if (isOnboardingCompleted) "main" else "onboarding"
+    ) {
 
         composable("onboarding") {
             OnboardingScreen(
                 onNavigateToMain = {
+                    settingsViewModel.setOnboardingCompleted(true)
                     navController.navigate("main") {
                         popUpTo("onboarding") { inclusive = true }
                     }

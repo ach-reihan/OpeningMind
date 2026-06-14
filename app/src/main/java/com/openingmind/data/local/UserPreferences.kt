@@ -20,6 +20,7 @@ class UserPreferences @Inject constructor(@ApplicationContext private val contex
 
     private val IS_DARK_MODE = booleanPreferencesKey("is_dark_mode")
     private val LANGUAGE = stringPreferencesKey("language")
+    private val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
     private val LAST_LOCAL_REPERTOIRE = stringPreferencesKey("last_local_repertoire")
     private val LAST_DICTIONARY_OPENING = stringPreferencesKey("last_dictionary_opening")
     private val LAST_AI_ADVICE = stringPreferencesKey("last_ai_advice")
@@ -30,6 +31,10 @@ class UserPreferences @Inject constructor(@ApplicationContext private val contex
 
     val language: Flow<String> = context.dataStore.data.map { preferences ->
         preferences[LANGUAGE] ?: "in"
+    }
+
+    val onboardingCompleted: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[ONBOARDING_COMPLETED] ?: false
     }
 
     val lastLocalRepertoire: Flow<String?> = context.dataStore.data.map { preferences ->
@@ -53,6 +58,12 @@ class UserPreferences @Inject constructor(@ApplicationContext private val contex
     suspend fun saveLanguage(lang: String) {
         context.dataStore.edit { preferences ->
             preferences[LANGUAGE] = lang
+        }
+    }
+
+    suspend fun setOnboardingCompleted(completed: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[ONBOARDING_COMPLETED] = completed
         }
     }
 

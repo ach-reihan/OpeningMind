@@ -21,6 +21,9 @@ class SettingsViewModel @Inject constructor(
     val language: StateFlow<String> = settingsRepository.getLanguage()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "in")
 
+    val isOnboardingCompleted: StateFlow<Boolean> = settingsRepository.isOnboardingCompleted()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+
     fun toggleDarkMode(isDark: Boolean) {
         viewModelScope.launch {
             settingsRepository.setDarkMode(isDark)
@@ -30,6 +33,12 @@ class SettingsViewModel @Inject constructor(
     fun setLanguage(lang: String) {
         viewModelScope.launch {
             settingsRepository.setLanguage(lang)
+        }
+    }
+
+    fun setOnboardingCompleted(completed: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setOnboardingCompleted(completed)
         }
     }
 }
